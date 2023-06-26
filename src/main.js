@@ -14,22 +14,48 @@ const client = new Client({
 	]
 });
 
+function callsignToText(callsign) {
+	var facility = {
+		DEL: 'Autorización',
+		GND: 'Terrestre',
+		TWR: 'Torre',
+		APP: 'Aproximación',
+		CTR: 'Centro',
+	}
+
+	var station = {
+		MMMX: 'México-Benito Juarez',
+		MMMY: 'Monterrey-Mariano Escobedo',
+		MMMD: 'Mérida',
+		MMEX: 'México',
+		MMAN: 'México',
+		MMZT: 'Mazatlán',
+		MMID: 'Mérida',
+		MMUN: 'Cancún',
+	}
+
+	var facilityName = facility[callsign.slice(-3)];
+	var stationName = station[callsign.slice(0,4)];
+
+	return facilityName + ' ' + stationName;	
+}
+
 async function checkControllers() {
 	const response = await fetch(process.env.DATA_URL);
 	const data = await response.json();
 
 	const newControllersOnline = {};
 
-	for (const controller of data.controllers) 
-	{
-		if (controller.callsign.startsWith('MM')) 
-		{
+	for (const controller of data.controllers) {
+		if (controller.callsign.startsWith('MM')) {
 			newControllersOnline[controller.callsign] = true;
 		  	
-			if (!controllersOnline[controller.callsign]) 
-			{
-				// This controller just came online
-				let message = `${controller.name} [${controller.cid}] se ha conectado en ${controller.callsign}!`;
+			// This controller just came online.
+			if (!controllersOnline[controller.callsign]) {
+				// First build the controllers posicion name
+				let position = callsignToText(controller.callsign);
+
+				let message = `${controller.name} [${controller.cid}] se ha conectado en ${position} [${controller.callsign}]!`;
 
 				client.channels.cache.get(process.env.ACTIVITY_CHANNEL_ID).send(message);
 				console.log(`${new Date().toISOString()} - Message sent: ${message}`);
@@ -42,7 +68,7 @@ async function checkControllers() {
 		if (!newControllersOnline[controllerCallsign]) 
 		{
 			// This controller just went offline
-			let message = `${controllerCallsign} se a desconectado.`;
+			let message = `${controllerCallsign} se ha desconectado.`;
 			
 		  	client.channels.cache.get(process.env.ACTIVITY_CHANNEL_ID).send(`${message}`);
 			console.log(`${new Date().toISOString()} - Message sent: ${message}`);
@@ -81,7 +107,9 @@ async function listControllers(interaction) {
 
 		for (var i = 0; i < activeControllers.length; i++) 
 		{
-			reply += `${activeControllers[i].callsign} : ${activeControllers[i].name} [${activeControllers[i].cid}]\n`;
+			let position = callsignToText(activeControllers[i].callsign);
+
+			reply += `${position} [${activeControllers[i].callsign}] : ${activeControllers[i].name} [${activeControllers[i].cid}]\n`;
 		}
 
 		reply += "```";
