@@ -23,16 +23,7 @@ function callsignToText(callsign) {
 		CTR: 'Centro',
 	}
 
-	var station = {
-		MMMX: 'México-Benito Juarez',
-		MMMY: 'Monterrey-Mariano Escobedo',
-		MMMD: 'Mérida',
-		MMEX: 'México',
-		MMAN: 'México',
-		MMZT: 'Mazatlán',
-		MMID: 'Mérida',
-		MMUN: 'Cancún',
-	}
+	var station = require("./airports.json")
 
 	var facilityName = facility[callsign.slice(-3)];
 	var stationName = station[callsign.slice(0,4)];
@@ -103,7 +94,7 @@ async function listControllers(interaction) {
 	}
 	else
 	{
-		let reply = "Los siguientes controladores estan conectados:\n```";
+		let reply = "Los siguientes controladores estan conectados:\n```js\n";
 
 		for (var i = 0; i < activeControllers.length; i++) 
 		{
@@ -129,10 +120,16 @@ client.on('ready', (c) => {
 client.on('interactionCreate', (interaction) => {
 	if (interaction.isChatInputCommand())
 	{
+		var interactionUsername = ""
+		if(interaction.member.nickname){
+			interactionUsername = interaction.member.nickname
+		}else{
+			interactionUsername = interaction.user.username
+		}
 		switch (interaction.commandName) 
 		{
 			case 'cta':
-				console.log(`${new Date().toISOString()} - Commands: ${interaction.member.nickname} solicito el comando /cta`);
+				console.log(`${new Date().toISOString()} - Commands: ${interactionUsername} solicito el comando /cta`);
 				listControllers(interaction);
 				break;
 		
