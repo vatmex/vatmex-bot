@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const {Client, IntentsBitField} = require('discord.js');
+const {Client, IntentsBitField, EmbedBuilder} = require('discord.js');
 
 // Store the online controllers
 let controllersOnline = {};
@@ -43,13 +43,20 @@ async function checkControllers() {
 		  	
 			// This controller just came online.
 			if (!controllersOnline[controller.callsign]) {
-				// First build the controllers posicion name
+				// First build the controllers position name
 				let position = callsignToText(controller.callsign);
 
-				let message = `${controller.name} [${controller.cid}] se ha conectado en ${position} [${controller.callsign}]!`;
+				// Creates a new embed style message
+				const newControllerEmbed = new EmbedBuilder()
+					.setColor("13437C")
+					.setTitle(`${position} en linea!`)
+					.setURL(`https://stats.vatsim.net/stats/${controller.cid}`)
+					.setDescription(`${controller.name} [${controller.cid}] se ha conectado en ${position} [${controller.callsign}]!`)
+					.setThumbnail('https://cdn.discordapp.com/attachments/803128345930760195/1124765846988927038/Imagotipo-01.png')
+					.setTimestamp(Date.now())
 
-				client.channels.cache.get(process.env.ACTIVITY_CHANNEL_ID).send(message);
-				console.log(`${new Date().toISOString()} - Message sent: ${message}`);
+				client.channels.cache.get(process.env.ACTIVITY_CHANNEL_ID).send({embeds: [newControllerEmbed]});
+				console.log(`${new Date().toISOString()} - Message sent: ${position} en linea! : ${controller.cid} [${controller.callsign}]`);
 			}
 		}
 	}
@@ -58,11 +65,20 @@ async function checkControllers() {
 	{
 		if (!newControllersOnline[controllerCallsign]) 
 		{
+			// First build the controllers position name
+			let position = callsignToText(controllerCallsign);
 			// This controller just went offline
-			let message = `${controllerCallsign} se ha desconectado.`;
+
+			// Creates a new embed style message
+			const offlineControllerEmbed = new EmbedBuilder()
+			.setColor("13437C")
+			.setTitle(`${position} se ha desconectado.`)
+			.setDescription(`${position} [${controllerCallsign}] se ha desconectado`)
+			.setThumbnail('https://cdn.discordapp.com/attachments/803128345930760195/1124765846988927038/Imagotipo-01.png')
+			.setTimestamp(Date.now())
 			
-		  	client.channels.cache.get(process.env.ACTIVITY_CHANNEL_ID).send(`${message}`);
-			console.log(`${new Date().toISOString()} - Message sent: ${message}`);
+		  	client.channels.cache.get(process.env.ACTIVITY_CHANNEL_ID).send({embeds: [offlineControllerEmbed]});
+			console.log(`${new Date().toISOString()} - Message sent: ${controllerCallsign} se ha desconectado.`);
 		}
 	}
 	
@@ -94,18 +110,21 @@ async function listControllers(interaction) {
 	}
 	else
 	{
-		let reply = "Los siguientes controladores estan conectados:\n```js\n";
+		// Creates a new embed style message
+		const controllerListEmbed = new EmbedBuilder()
+		.setColor("13437C")
+		.setTitle(`Lista de controladores:`)
+		.setThumbnail('https://cdn.discordapp.com/attachments/803128345930760195/1124765846988927038/Imagotipo-01.png')
+		.setTimestamp(Date.now())
 
 		for (var i = 0; i < activeControllers.length; i++) 
 		{
 			let position = callsignToText(activeControllers[i].callsign);
 
-			reply += `${position} [${activeControllers[i].callsign}] : ${activeControllers[i].name} [${activeControllers[i].cid}]\n`;
+			controllerListEmbed.addFields({ name: position, value: `${position} [${activeControllers[i].callsign}] : ${activeControllers[i].name} [${activeControllers[i].cid}]` })
 		}
 
-		reply += "```";
-
-		interaction.reply(reply);
+		interaction.reply({embeds: [controllerListEmbed]});
 	}
 }
 
