@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const {Client, IntentsBitField} = require('discord.js');
+const {Client, IntentsBitField, EmbedBuilder} = require('discord.js');
 
 // Store the online controllers
 let controllersOnline = {};
@@ -38,18 +38,24 @@ async function checkControllers() {
 	const newControllersOnline = {};
 
 	for (const controller of data.controllers) {
-		if (controller.callsign.startsWith('MM')) {
+		if (controller.callsign.startsWith('MM') && controller.facility != 0 && controller.facility != 1 && controller.rating < 11 && controller.rating > 1) {
 			newControllersOnline[controller.callsign] = true;
 		  	
 			// This controller just came online.
 			if (!controllersOnline[controller.callsign]) {
-				// First build the controllers posicion name
+				// First build the controllers position name
 				let position = callsignToText(controller.callsign);
 
-				let message = `${controller.name} [${controller.cid}] se ha conectado en ${position} [${controller.callsign}]!`;
+				// Creates a new embed style message
+				const newControllerEmbed = new EmbedBuilder()
+					.setColor("13437C")
+					.setTitle(`${position} en linea!`)
+					.setURL(`https://stats.vatsim.net/stats/${controller.cid}`)
+					.setDescription(`\`\`\`js\n${controller.name} [${controller.cid}] se ha conectado en \"${position}\" [${controller.callsign}]!\`\`\``)
+					.setTimestamp(Date.now())
 
-				client.channels.cache.get(process.env.ACTIVITY_CHANNEL_ID).send(message);
-				console.log(`${new Date().toISOString()} - Message sent: ${message}`);
+				client.channels.cache.get(process.env.ACTIVITY_CHANNEL_ID).send({embeds: [newControllerEmbed]});
+				console.log(`${new Date().toISOString()} - Message sent: ${position} en linea! : ${controller.cid} [${controller.callsign}]`);
 			}
 		}
 	}
@@ -58,11 +64,18 @@ async function checkControllers() {
 	{
 		if (!newControllersOnline[controllerCallsign]) 
 		{
+			// First build the controllers position name
+			let position = callsignToText(controllerCallsign);
 			// This controller just went offline
-			let message = `${controllerCallsign} se ha desconectado.`;
+
+			// Creates a new embed style message
+			const offlineControllerEmbed = new EmbedBuilder()
+			.setColor("13437C")
+			.setTitle(`${position} se ha desconectado.`)
+			.setTimestamp(Date.now())
 			
-		  	client.channels.cache.get(process.env.ACTIVITY_CHANNEL_ID).send(`${message}`);
-			console.log(`${new Date().toISOString()} - Message sent: ${message}`);
+		  	client.channels.cache.get(process.env.ACTIVITY_CHANNEL_ID).send({embeds: [offlineControllerEmbed]});
+			console.log(`${new Date().toISOString()} - Message sent: ${controllerCallsign} se ha desconectado.`);
 		}
 	}
 	
@@ -76,7 +89,7 @@ async function listControllers(interaction) {
 	let activeControllers = [];
 	for (const controller of data.controllers) 
 	{
-		if (controller.callsign.startsWith('MM'))
+		if (controller.callsign.startsWith('MM') && controller.facility != 0 && controller.facility != 1 && controller.rating < 11 && controller.rating > 1)
 		{
 			activeControllers.push(
 				{
@@ -94,18 +107,20 @@ async function listControllers(interaction) {
 	}
 	else
 	{
-		let reply = "Los siguientes controladores estan conectados:\n```js\n";
+		// Creates a new embed style message
+		const controllerListEmbed = new EmbedBuilder()
+		.setColor("13437C")
+		.setTitle(`Lista de controladores:`)
+		.setTimestamp(Date.now())
 
 		for (var i = 0; i < activeControllers.length; i++) 
 		{
 			let position = callsignToText(activeControllers[i].callsign);
 
-			reply += `${position} [${activeControllers[i].callsign}] : ${activeControllers[i].name} [${activeControllers[i].cid}]\n`;
+			controllerListEmbed.addFields({ name: position, value: `\`\`\`js\n\"${position}\" [${activeControllers[i].callsign}] : ${activeControllers[i].name} [${activeControllers[i].cid}]\`\`\`` })
 		}
 
-		reply += "```";
-
-		interaction.reply(reply);
+		interaction.reply({embeds: [controllerListEmbed]});
 	}
 }
 
