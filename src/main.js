@@ -1,158 +1,175 @@
 require('dotenv').config();
 
-const {Client, IntentsBitField, EmbedBuilder} = require('discord.js');
+const { Client, IntentsBitField, EmbedBuilder } = require('discord.js');
+const station = require('./airports.json');
 
 // Store the online controllers
 let controllersOnline = {};
 
 const client = new Client({
-	intents: [
-		IntentsBitField.Flags.Guilds,
-		IntentsBitField.Flags.GuildMembers,
-		IntentsBitField.Flags.GuildMessages,
-		IntentsBitField.Flags.MessageContent,
-	]
+  intents: [
+    IntentsBitField.Flags.Guilds,
+    IntentsBitField.Flags.GuildMembers,
+    IntentsBitField.Flags.GuildMessages,
+    IntentsBitField.Flags.MessageContent,
+  ],
 });
 
 function callsignToText(callsign) {
-	var facility = {
-		DEL: 'Autorización',
-		GND: 'Terrestre',
-		TWR: 'Torre',
-		APP: 'Aproximación',
-		CTR: 'Centro',
-	}
+  const facility = {
+    DEL: 'Autorización',
+    GND: 'Terrestre',
+    TWR: 'Torre',
+    APP: 'Aproximación',
+    CTR: 'Centro',
+  };
 
-	var station = require("./airports.json")
+  const facilityName = facility[callsign.slice(-3)];
+  const stationName = station[callsign.slice(0, 4)];
 
-	var facilityName = facility[callsign.slice(-3)];
-	var stationName = station[callsign.slice(0,4)];
-
-	return facilityName + ' ' + stationName;	
+  return `${facilityName} ${stationName}`;
 }
 
 async function checkControllers() {
-	const response = await fetch(process.env.DATA_URL);
-	const data = await response.json();
+  const response = await fetch(process.env.DATA_URL);
+  const data = await response.json();
 
-	const newControllersOnline = {};
+  const newControllersOnline = {};
 
-	for (const controller of data.controllers) {
-		if (controller.callsign.startsWith('MM') && controller.facility != 0 && controller.facility != 1 && controller.rating < 11 && controller.rating > 1) {
-			newControllersOnline[controller.callsign] = true;
-		  	
-			// This controller just came online.
-			if (!controllersOnline[controller.callsign]) {
-				// First build the controllers position name
-				let position = callsignToText(controller.callsign);
+  for (const controller of data.controllers) {
+    if (
+      controller.callsign.startsWith('MM') &&
+      controller.facility !== 0 &&
+      controller.facility !== 1 &&
+      controller.rating < 11 &&
+      controller.rating > 1
+    ) {
+      newControllersOnline[controller.callsign] = true;
 
-				// Creates a new embed style message
-				const newControllerEmbed = new EmbedBuilder()
-					.setColor("13437C")
-					.setTitle(`${position} en linea!`)
-					.setURL(`https://stats.vatsim.net/stats/${controller.cid}`)
-					.setDescription(`\`\`\`js\n${controller.name} [${controller.cid}] se ha conectado en \"${position}\" [${controller.callsign}]!\`\`\``)
-					.setTimestamp(Date.now())
+      // This controller just came online.
+      if (!controllersOnline[controller.callsign]) {
+        // First build the controllers position name
+        const position = callsignToText(controller.callsign);
 
-				client.channels.cache.get(process.env.ACTIVITY_CHANNEL_ID).send({embeds: [newControllerEmbed]});
-				console.log(`${new Date().toISOString()} - Message sent: ${position} en linea! : ${controller.cid} [${controller.callsign}]`);
-			}
-		}
-	}
-	
-	for (const controllerCallsign in controllersOnline) 
-	{
-		if (!newControllersOnline[controllerCallsign]) 
-		{
-			// First build the controllers position name
-			let position = callsignToText(controllerCallsign);
-			// This controller just went offline
+        // Creates a new embed style message
+        const newControllerEmbed = new EmbedBuilder()
+          .setColor('13437C')
+          .setTitle(`${position} en linea!`)
+          .setURL(`https://stats.vatsim.net/stats/${controller.cid}`)
+          .setDescription(
+            `\`\`\`js\n${controller.name} [${controller.cid}] se ha conectado en "${position}" [${controller.callsign}]!\`\`\``
+          )
+          .setTimestamp(Date.now());
 
-			// Creates a new embed style message
-			const offlineControllerEmbed = new EmbedBuilder()
-			.setColor("13437C")
-			.setTitle(`${position} se ha desconectado.`)
-			.setTimestamp(Date.now())
-			
-		  	client.channels.cache.get(process.env.ACTIVITY_CHANNEL_ID).send({embeds: [offlineControllerEmbed]});
-			console.log(`${new Date().toISOString()} - Message sent: ${controllerCallsign} se ha desconectado.`);
-		}
-	}
-	
-	controllersOnline = newControllersOnline;
+        client.channels.cache
+          .get(process.env.ACTIVITY_CHANNEL_ID)
+          .send({ embeds: [newControllerEmbed] });
+        console.log(
+          `${new Date().toISOString()} - Message sent: ${position} en linea! : ${
+            controller.cid
+          } [${controller.callsign}]`
+        );
+      }
+    }
+  }
+
+  for (const [controllerCallsign] of Object.entries(controllersOnline)) {
+    if (!newControllersOnline[controllerCallsign]) {
+      const position = callsignToText(controllerCallsign);
+
+      const offlineControllerEmbed = new EmbedBuilder()
+        .setColor('13437C')
+        .setTitle(`${position} se ha desconectado.`)
+        .setTimestamp(Date.now());
+
+      client.channels.cache
+        .get(process.env.ACTIVITY_CHANNEL_ID)
+        .send({ embeds: [offlineControllerEmbed] });
+      console.log(
+        `${new Date().toISOString()} - Message sent: ${controllerCallsign} se ha desconectado.`
+      );
+    }
+  }
+
+  controllersOnline = newControllersOnline;
 }
 
 async function listControllers(interaction) {
-	const response = await fetch(process.env.DATA_URL);
-	const data = await response.json();
+  const response = await fetch(process.env.DATA_URL);
+  const data = await response.json();
 
-	let activeControllers = [];
-	for (const controller of data.controllers) 
-	{
-		if (controller.callsign.startsWith('MM') && controller.facility != 0 && controller.facility != 1 && controller.rating < 11 && controller.rating > 1)
-		{
-			activeControllers.push(
-				{
-					name: controller.name,
-					cid: controller.cid,
-					callsign: controller.callsign,
-				}
-			);
-		}
-	}
+  const activeControllers = [];
+  for (const controller of data.controllers) {
+    if (
+      controller.callsign.startsWith('MM') &&
+      controller.facility !== 0 &&
+      controller.facility !== 1 &&
+      controller.rating < 11 &&
+      controller.rating > 1
+    ) {
+      activeControllers.push({
+        name: controller.name,
+        cid: controller.cid,
+        callsign: controller.callsign,
+      });
+    }
+  }
 
-	if (activeControllers.length === 0)
-	{
-		interaction.reply('No hay ningún controlador conectado al momento. Sé el primero!');
-	}
-	else
-	{
-		// Creates a new embed style message
-		const controllerListEmbed = new EmbedBuilder()
-		.setColor("13437C")
-		.setTitle(`Lista de controladores:`)
-		.setTimestamp(Date.now())
+  if (activeControllers.length === 0) {
+    interaction.reply(
+      'No hay ningún controlador conectado al momento. Sé el primero!'
+    );
+  } else {
+    // Creates a new embed style message
+    const controllerListEmbed = new EmbedBuilder()
+      .setColor('13437C')
+      .setTitle(`Lista de controladores:`)
+      .setTimestamp(Date.now());
 
-		for (var i = 0; i < activeControllers.length; i++) 
-		{
-			let position = callsignToText(activeControllers[i].callsign);
+    for (let i = 0; i < activeControllers.length; i += 1) {
+      const position = callsignToText(activeControllers[i].callsign);
 
-			controllerListEmbed.addFields({ name: position, value: `\`\`\`js\n\"${position}\" [${activeControllers[i].callsign}] : ${activeControllers[i].name} [${activeControllers[i].cid}]\`\`\`` })
-		}
+      controllerListEmbed.addFields({
+        name: position,
+        value: `\`\`\`js\n"${position}" [${activeControllers[i].callsign}] : ${activeControllers[i].name} [${activeControllers[i].cid}]\`\`\``,
+      });
+    }
 
-		interaction.reply({embeds: [controllerListEmbed]});
-	}
+    interaction.reply({ embeds: [controllerListEmbed] });
+  }
 }
 
-client.on('ready', (c) => {
-	console.log(`${new Date().toISOString()} - System: Vatmex Bot is online`);
+client.on('interactionCreate', (interaction) => {
+  if (interaction.isChatInputCommand()) {
+    let interactionUsername = '';
 
-	// Set up the controller check every 10 seconds
-	checkControllers();
-	setInterval(checkControllers, 10000);
+    if (interaction.member.nickname) {
+      interactionUsername = interaction.member.nickname;
+    } else {
+      interactionUsername = interaction.user.username;
+    }
+
+    switch (interaction.commandName) {
+      case 'cta':
+        console.log(
+          `${new Date().toISOString()} - Commands: ${interactionUsername} solicito el comando /cta`
+        );
+        listControllers(interaction);
+        break;
+
+      default:
+        interaction.reply('Comando no implementado. Es culpa de Enrique!');
+        break;
+    }
+  }
 });
 
-client.on('interactionCreate', (interaction) => {
-	if (interaction.isChatInputCommand())
-	{
-		var interactionUsername = ""
-		if(interaction.member.nickname){
-			interactionUsername = interaction.member.nickname
-		}else{
-			interactionUsername = interaction.user.username
-		}
-		switch (interaction.commandName) 
-		{
-			case 'cta':
-				console.log(`${new Date().toISOString()} - Commands: ${interactionUsername} solicito el comando /cta`);
-				listControllers(interaction);
-				break;
-		
-			default:
-				interaction.reply('Comando no implementado. Es culpa de Enrique!');
-				break;
-		}
-	}
+client.on('ready', () => {
+  console.log(`${new Date().toISOString()} - System: Vatmex Bot is online`);
+
+  // Set up the controller check every 10 seconds
+  checkControllers();
+  setInterval(checkControllers, 10000);
 });
 
 client.login(process.env.TOKEN);
