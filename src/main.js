@@ -30,6 +30,18 @@ function callsignToText(callsign) {
   return `${facilityName} ${stationName}`;
 }
 
+function warning(controllerInRoster, controller) {
+  client.channels.cache
+    .get(process.env.ACTIVITY_CHANNEL_ID)
+    .send(
+      `[⚠️] Advertencia, ${controllerInRoster.data.first_name} ${
+        controllerInRoster.data.last_name
+      } [${controller.cid}] se ha conectado en ${callsignToText(
+        controller.callsign
+      )} [${controller.callsign}] sin tener autorización de esa posición.`
+    );
+}
+
 async function checkControllers() {
   const response = await fetch(process.env.DATA_URL);
   const data = await response.json();
@@ -48,27 +60,81 @@ async function checkControllers() {
 
       // This controller just came online.
       if (!controllersOnline[controller.callsign]) {
-        // First build the controllers position name
-        const position = callsignToText(controller.callsign);
-
-        // Creates a new embed style message
-        const newControllerEmbed = new EmbedBuilder()
-          .setColor('13437C')
-          .setTitle(`${position} en linea!`)
-          .setURL(`https://stats.vatsim.net/stats/${controller.cid}`)
-          .setDescription(
-            `\`\`\`js\n${controller.name} [${controller.cid}] se ha conectado en "${position}" [${controller.callsign}]!\`\`\``
-          )
-          .setTimestamp(Date.now());
-
-        client.channels.cache
-          .get(process.env.ACTIVITY_CHANNEL_ID)
-          .send({ embeds: [newControllerEmbed] });
-        console.log(
-          `${new Date().toISOString()} - Message sent: ${position} en linea! : ${
-            controller.cid
-          } [${controller.callsign}]`
+        // Sends an Roster API Request
+        const request = await fetch(
+          `${process.env.ROSTER_DATA_URL}/${controller.cid}`
         );
+        const controllerInRoster = await request.json();
+
+        // Processes facility/position relation
+        if (controllerInRoster.code === 200) {
+          if (controller.facility === 2 && !controllerInRoster.data.delivery) {
+            warning(controllerInRoster, controller);
+          } else if (
+            controller.facility === 3 &&
+            !controllerInRoster.data.ground
+          ) {
+            warning(controllerInRoster, controller);
+          } else if (
+            controller.facility === 4 &&
+            !controllerInRoster.data.tower
+          ) {
+            warning(controllerInRoster, controller);
+          } else if (
+            controller.facility === 5 &&
+            !controllerInRoster.data.approach
+          ) {
+            warning(controllerInRoster, controller);
+          } else if (
+            controller.facility === 5 &&
+            !controllerInRoster.data.center
+          ) {
+            warning(controllerInRoster, controller);
+          } else if (controllerInRoster.inactive) {
+            client.channels.cache
+              .get(process.env.ACTIVITY_CHANNEL_ID)
+              .send(
+                `Advertencia, ${controller.name} [${
+                  controller.cid
+                }] se ha conectado en ${callsignToText(controller.callsign)} [${
+                  controller.callsign
+                }] estando inactivo en el roster`
+              );
+            // All good! No need to send a message
+          }
+        } else if (controllerInRoster.code === 404) {
+          client.channels.cache
+            .get(process.env.ACTIVITY_CHANNEL_ID)
+            .send(
+              `Advertencia, ${controller.name} [${
+                controller.cid
+              }] se ha conectado en ${callsignToText(controller.callsign)} [${
+                controller.callsign
+              }] sin estar en el roster`
+            );
+        } else {
+          // Builds the controllers position name
+          const position = callsignToText(controller.callsign);
+
+          // Creates a new embed style message
+          const newControllerEmbed = new EmbedBuilder()
+            .setColor('13437C')
+            .setTitle(`${position} en linea!`)
+            .setURL(`https://stats.vatsim.net/stats/${controller.cid}`)
+            .setDescription(
+              `\`\`\`js\n${controller.name} [${controller.cid}] se ha conectado en "${position}" [${controller.callsign}]!\`\`\``
+            )
+            .setTimestamp(Date.now());
+
+          client.channels.cache
+            .get(process.env.ACTIVITY_CHANNEL_ID)
+            .send({ embeds: [newControllerEmbed] });
+          console.log(
+            `${new Date().toISOString()} - Message sent: ${position} en linea! : ${
+              controller.cid
+            } [${controller.callsign}]`
+          );
+        }
       }
     }
   }
