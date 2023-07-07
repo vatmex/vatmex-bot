@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const { Client, IntentsBitField, EmbedBuilder } = require('discord.js');
 const station = require('./airports.json');
+const unauthorizedController = require('./functions/unauthorizedController');
 
 // Store the online controllers
 let controllersOnline = {};
@@ -47,28 +48,29 @@ async function checkControllers() {
       newControllersOnline[controller.callsign] = true;
 
       // This controller just came online.
+
       if (!controllersOnline[controller.callsign]) {
-        // First build the controllers position name
-        const position = callsignToText(controller.callsign);
-
-        // Creates a new embed style message
-        const newControllerEmbed = new EmbedBuilder()
-          .setColor('13437C')
-          .setTitle(`${position} en linea!`)
-          .setURL(`https://stats.vatsim.net/stats/${controller.cid}`)
-          .setDescription(
-            `\`\`\`js\n${controller.name} [${controller.cid}] se ha conectado en "${position}" [${controller.callsign}]!\`\`\``
-          )
-          .setTimestamp(Date.now());
-
-        client.channels.cache
-          .get(process.env.ACTIVITY_CHANNEL_ID)
-          .send({ embeds: [newControllerEmbed] });
-        console.log(
-          `${new Date().toISOString()} - Message sent: ${position} en linea! : ${
-            controller.cid
-          } [${controller.callsign}]`
+        // Sends an Roster API Request
+        const request = await fetch(
+          `${process.env.ROSTER_DATA_URL}/${controller.cid}`
         );
+        const controllerInRoster = await request.json();
+        // Processes facility/position relation
+        if (controllerInRoster.code === 200) {
+          await unauthorizedController(
+            200,
+            client,
+            controller,
+            controllerInRoster
+          );
+        } else if (controllerInRoster.code === 404) {
+          await unauthorizedController(
+            404,
+            client,
+            controller,
+            controllerInRoster
+          );
+        }
       }
     }
   }
