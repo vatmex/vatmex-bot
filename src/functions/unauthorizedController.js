@@ -121,7 +121,7 @@ module.exports = async function (code, client, controller, controllerInRoster) {
         .setTimestamp(Date.now());
 
       client.channels.cache
-        .get(process.env.UNAUTHORIZED_CHANNEL_ID)
+        .get(process.env.ACTIVITY_CHANNEL_ID)
         .send({ embeds: [newControllerEmbed] });
       console.log(
         `${new Date().toISOString()} - Message sent: ${position} en linea! : ${
