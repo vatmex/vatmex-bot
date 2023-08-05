@@ -32,7 +32,7 @@ function callsignToText(callsign) {
 }
 
 async function checkControllers() {
-  const response = await fetch(process.env.DATA_URL);
+  const response = await fetch(process.env.VATSIM_DATA_URL);
   const data = await response.json();
 
   const newControllersOnline = {};
@@ -97,7 +97,7 @@ async function checkControllers() {
 }
 
 async function listControllers(interaction) {
-  const response = await fetch(process.env.DATA_URL);
+  const response = await fetch(process.env.VATSIM_DATA_URL);
   const data = await response.json();
 
   const activeControllers = [];

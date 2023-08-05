@@ -21,7 +21,7 @@ module.exports = async function (code, client, controller, controllerInRoster) {
   if (code === 200) {
     if (controller.facility === 2 && !controllerInRoster.data.delivery) {
       client.channels.cache
-        .get(process.env.ACTIVITY_CHANNEL_ID)
+        .get(process.env.UNAUTHORIZED_CHANNEL_ID)
         .send(
           `⚠️ ${controllerInRoster.data.first_name} ${
             controllerInRoster.data.last_name
@@ -36,7 +36,7 @@ module.exports = async function (code, client, controller, controllerInRoster) {
       );
     } else if (controller.facility === 3 && !controllerInRoster.data.ground) {
       client.channels.cache
-        .get(process.env.ACTIVITY_CHANNEL_ID)
+        .get(process.env.UNAUTHORIZED_CHANNEL_ID)
         .send(
           `⚠️ ${controllerInRoster.data.first_name} ${
             controllerInRoster.data.last_name
@@ -51,7 +51,7 @@ module.exports = async function (code, client, controller, controllerInRoster) {
       );
     } else if (controller.facility === 4 && !controllerInRoster.data.tower) {
       client.channels.cache
-        .get(process.env.ACTIVITY_CHANNEL_ID)
+        .get(process.env.UNAUTHORIZED_CHANNEL_ID)
         .send(
           `⚠️ ${controllerInRoster.data.first_name} ${
             controllerInRoster.data.last_name
@@ -66,7 +66,7 @@ module.exports = async function (code, client, controller, controllerInRoster) {
       );
     } else if (controller.facility === 5 && !controllerInRoster.data.approach) {
       client.channels.cache
-        .get(process.env.ACTIVITY_CHANNEL_ID)
+        .get(process.env.UNAUTHORIZED_CHANNEL_ID)
         .send(
           `⚠️ ${controllerInRoster.data.first_name} ${
             controllerInRoster.data.last_name
@@ -81,7 +81,7 @@ module.exports = async function (code, client, controller, controllerInRoster) {
       );
     } else if (controller.facility === 5 && !controllerInRoster.data.center) {
       client.channels.cache
-        .get(process.env.ACTIVITY_CHANNEL_ID)
+        .get(process.env.UNAUTHORIZED_CHANNEL_ID)
         .send(
           `⚠️ ${controllerInRoster.data.first_name} ${
             controllerInRoster.data.last_name
@@ -96,7 +96,7 @@ module.exports = async function (code, client, controller, controllerInRoster) {
       );
     } else if (controllerInRoster.inactive) {
       client.channels.cache
-        .get(process.env.ACTIVITY_CHANNEL_ID)
+        .get(process.env.UNAUTHORIZED_CHANNEL_ID)
         .send(
           `⚠️ ${controllerInRoster.data.first_name} ${
             controllerInRoster.data.last_name
@@ -121,7 +121,7 @@ module.exports = async function (code, client, controller, controllerInRoster) {
         .setTimestamp(Date.now());
 
       client.channels.cache
-        .get(process.env.ACTIVITY_CHANNEL_ID)
+        .get(process.env.UNAUTHORIZED_CHANNEL_ID)
         .send({ embeds: [newControllerEmbed] });
       console.log(
         `${new Date().toISOString()} - Message sent: ${position} en linea! : ${
@@ -131,7 +131,7 @@ module.exports = async function (code, client, controller, controllerInRoster) {
     }
   } else if (code === 400) {
     client.channels.cache
-      .get(process.env.ACTIVITY_CHANNEL_ID)
+      .get(process.env.UNAUTHORIZED_CHANNEL_ID)
       .send(
         `⚠️ ${controller.name} [${
           controller.cid
