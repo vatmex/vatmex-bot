@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/main.js",
+    "register-commands": "node src/register-commands.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
