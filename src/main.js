@@ -38,12 +38,15 @@ async function checkControllers() {
   const newControllersOnline = {};
 
   for (const controller of data.controllers) {
+    const splittedCallsign = controller.callsign.split('_');
     if (
       controller.callsign.startsWith('MM') &&
       controller.facility !== 0 &&
       controller.facility !== 1 &&
       controller.rating < 11 &&
-      controller.rating > 1
+      controller.rating > 1 &&
+      splittedCallsign[0].length === 4 &&
+      splittedCallsign[1] !== 'I'
     ) {
       newControllersOnline[controller.callsign] = true;
 
@@ -99,15 +102,17 @@ async function checkControllers() {
 async function listControllers(interaction) {
   const response = await fetch(process.env.VATSIM_DATA_URL);
   const data = await response.json();
-
   const activeControllers = [];
   for (const controller of data.controllers) {
+    const splittedCallsign = controller.callsign.split('_');
     if (
       controller.callsign.startsWith('MM') &&
       controller.facility !== 0 &&
       controller.facility !== 1 &&
       controller.rating < 11 &&
-      controller.rating > 1
+      controller.rating > 1 &&
+      splittedCallsign[0].length === 4 &&
+      splittedCallsign[1] !== 'I'
     ) {
       activeControllers.push({
         name: controller.name,
