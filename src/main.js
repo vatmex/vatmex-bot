@@ -124,7 +124,7 @@ async function listControllers(interaction) {
 
   if (activeControllers.length === 0) {
     interaction.reply(
-      'No hay ningún controlador conectado al momento. Sé el primero!'
+      'No hay ningún controlador conectado al momento. ¡Sé el primero!'
     );
   } else {
     // Creates a new embed style message

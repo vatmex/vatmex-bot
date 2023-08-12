@@ -129,7 +129,7 @@ module.exports = async function (code, client, controller, controllerInRoster) {
         } [${controller.callsign}]`
       );
     }
-  } else if (code === 400) {
+  } else if (code === 404) {
     client.channels.cache
       .get(process.env.UNAUTHORIZED_CHANNEL_ID)
       .send(
