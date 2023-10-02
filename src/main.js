@@ -78,24 +78,6 @@ async function checkControllers() {
     }
   }
 
-  for (const [controllerCallsign] of Object.entries(controllersOnline)) {
-    if (!newControllersOnline[controllerCallsign]) {
-      const position = callsignToText(controllerCallsign);
-
-      const offlineControllerEmbed = new EmbedBuilder()
-        .setColor('13437C')
-        .setTitle(`${position} se ha desconectado.`)
-        .setTimestamp(Date.now());
-
-      client.channels.cache
-        .get(process.env.ACTIVITY_CHANNEL_ID)
-        .send({ embeds: [offlineControllerEmbed] });
-      console.log(
-        `${new Date().toISOString()} - Message sent: ${controllerCallsign} se ha desconectado.`
-      );
-    }
-  }
-
   controllersOnline = newControllersOnline;
 }
 
