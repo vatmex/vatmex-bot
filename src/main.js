@@ -1,8 +1,14 @@
 require('dotenv').config();
 
 const { Client, IntentsBitField, EmbedBuilder } = require('discord.js');
+// eslint-disable-next-line import/no-extraneous-dependencies
+const express = require('express');
 const station = require('./airports.json');
 const unauthorizedController = require('./functions/unauthorizedController');
+const API = require('./functions/api');
+
+const app = express();
+app.use(express.json());
 
 // Store the online controllers
 let controllersOnline = {};
@@ -159,6 +165,36 @@ client.on('ready', () => {
   // Set up the controller check every 10 seconds
   checkControllers();
   setInterval(checkControllers, 10000);
+});
+
+app.post('/test', API.authenticateKey, (req, res) => {
+  console.log(req.body);
+  res.send(req.body);
+});
+
+app.post('/application', API.authenticateKey, (req, res) => {
+  console.log(req.body.application.cid);
+
+  const newApplicationEmbed = new EmbedBuilder()
+    .setColor('13437C')
+    .setTitle('Nueva Solicitud ATC')
+    .setURL(
+      `https://www.vatmex.com.mx/ops/training/applications/${req.body.application.id}`
+    )
+    .setDescription(
+      `\`\`\`js\n${req.body.application.name} [${req.body.application.cid}] ha mandado una solicitud de entrenamiento ATC]!\`\`\``
+    )
+    .setTimestamp(Date.now());
+
+  client.channels.cache
+    .get(process.env.STAFF_CHANNEL_ID)
+    .send({ embeds: [newApplicationEmbed] });
+
+  res.send('Evento noticiado con exito!');
+});
+
+app.listen(8090, () => {
+  console.log('Bot listening on port 8090');
 });
 
 client.login(process.env.TOKEN);
