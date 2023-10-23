@@ -1,8 +1,11 @@
-// Import Dependencies
+// Import dependencies
 const { EmbedBuilder } = require('discord.js');
 
-// Import Utils
+// Import utils
 const Positions = require('../utils/positions');
+
+// Import config
+const accs = require('../config/accs.json');
 
 let controllersOnline = {};
 
@@ -13,13 +16,13 @@ const checkControllers = async (bot) => {
   const newControllersOnline = {};
 
   for (const controller of data.controllers) {
-    const splittedCallsign = controller.callsign.split('_');
+    const splitCallsign = controller.callsign.split('_');
 
     if (
       controller.callsign.startsWith('MM') && // Only México
       controller.facility !== 0 && // Hide observers
-      splittedCallsign[0].length === 4 && // Hide non standard positions
-      splittedCallsign[1] !== 'I' // Hide instructors
+      splitCallsign[0].length === 4 && // Hide non standard positions
+      splitCallsign[1] !== 'I' // Hide instructors
     ) {
       const newController = {
         online: true,
@@ -61,7 +64,7 @@ const checkControllers = async (bot) => {
 };
 
 const listControllers = async (interaction) => {
-  if (controllersOnline.length === 0) {
+  if (Object.keys(controllersOnline).length === 0) {
     interaction.reply(
       'No hay ningún controlador conectado al momento. ¡Sé el primero!'
     );
@@ -72,15 +75,28 @@ const listControllers = async (interaction) => {
       .setTitle(`Lista de controladores:`)
       .setTimestamp(Date.now());
 
-    console.log(controllersOnline);
+    Object.keys(accs).forEach((acc) => {
+      let embedValue = '```js\n';
+      let isAccEmpty = true;
 
-    Object.keys(controllersOnline).forEach((callsign) => {
-      const position = Positions.callsignToText(callsign);
+      Object.keys(controllersOnline).forEach((callsign) => {
+        const splitCallsign = callsign.split('_');
+        const position = Positions.callsignToText(callsign);
 
-      controllerListEmbed.addFields({
-        name: position,
-        value: `\`\`\`js\n"${position}" [${callsign}] : ${controllersOnline[callsign].name} [${controllersOnline[callsign].cid}]\`\`\``,
+        if (accs[acc][splitCallsign[0]] === true) {
+          isAccEmpty = false;
+          embedValue += `"${position}" [${callsign}]: ${controllersOnline[callsign].name} ${controllersOnline[callsign].cid}\n`;
+        }
       });
+
+      if (!isAccEmpty) {
+        embedValue += '```';
+
+        controllerListEmbed.addFields({
+          name: accs[acc].name,
+          value: embedValue,
+        });
+      }
     });
 
     interaction.reply({ embeds: [controllerListEmbed] });

@@ -1,11 +1,11 @@
 const facility = {
+  APP: 'Aproximación',
+  CTR: 'Centro',
   DEL: 'Autorización',
+  DEP: 'Salidas',
+  FSS: 'FIR',
   GND: 'Terrestre',
   TWR: 'Torre',
-  APP: 'Aproximación',
-  DEP: 'Salidas',
-  CTR: 'Centro',
-  FSS: 'FIR',
 };
 
 const stations = {
@@ -29,6 +29,7 @@ const stations = {
   MMES: 'Ensenada',
   MMEX: 'México',
   MMFR: 'México',
+  MMGA: 'Creel',
   MMGL: 'Guadalajara',
   MMGM: 'Guaymas',
   MMHO: 'Hermosillo',
