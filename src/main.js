@@ -7,6 +7,9 @@ const Sentry = require('@sentry/node');
 const { ProfilingIntegration } = require('@sentry/profiling-node');
 const API = require('./middleware/api');
 
+// Import Controllers
+const notificationController = require('./controllers/notificationController');
+
 // Import Handlers
 const Controllers = require('./handlers/controllers');
 
@@ -72,24 +75,7 @@ bot.on('interactionCreate', (interaction) => {
 });
 
 app.post('/application', API.authenticateKey, (req, res) => {
-  console.log(req.body.application.cid);
-
-  const newApplicationEmbed = new EmbedBuilder()
-    .setColor('13437C')
-    .setTitle('Nueva Solicitud ATC')
-    .setURL(
-      `https://www.vatmex.com.mx/ops/training/applications/${req.body.application.id}`
-    )
-    .setDescription(
-      `\`\`\`js\n${req.body.application.name} [${req.body.application.cid}] ha mandado una solicitud de entrenamiento ATC]!\`\`\``
-    )
-    .setTimestamp(Date.now());
-
-  bot.channels.cache
-    .get(process.env.STAFF_CHANNEL_ID)
-    .send({ embeds: [newApplicationEmbed] });
-
-  res.send('Evento noticiado con exito!');
+  notificationController.application(req, res, bot);
 });
 
 // Add the sentry error handler after all the controllers for ExpressJS
