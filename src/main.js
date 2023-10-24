@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 require('dotenv').config();
 
-const { Client, IntentsBitField, EmbedBuilder } = require('discord.js');
+const { Client, IntentsBitField } = require('discord.js');
 const express = require('express');
 const Sentry = require('@sentry/node');
 const { ProfilingIntegration } = require('@sentry/profiling-node');
@@ -11,6 +11,7 @@ const API = require('./middleware/api');
 const notificationController = require('./controllers/notificationController');
 
 // Import Handlers
+const Metar = require('./handlers/metar');
 const Controllers = require('./handlers/controllers');
 
 // Generate an instance of the Express app
@@ -65,6 +66,13 @@ bot.on('interactionCreate', (interaction) => {
           `${new Date().toISOString()} - Commands: ${interactionUsername} solicito el comando /cta`
         );
         Controllers.listControllers(interaction);
+        break;
+
+      case 'metar':
+        console.log(
+          `${new Date().toISOString()} - Commands: ${interactionUsername} solicito el comando /metar`
+        );
+        Metar.showMetar(interaction);
         break;
 
       default:
