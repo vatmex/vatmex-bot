@@ -70,7 +70,9 @@ bot.on('interactionCreate', (interaction) => {
 
       case 'metar':
         console.log(
-          `${new Date().toISOString()} - Commands: ${interactionUsername} solicito el comando /metar`
+          `${new Date().toISOString()} - COMMAND: ${interactionUsername} request command /metar for airport ${interaction.options
+            .get('icao')
+            .value.toUpperCase()}`
         );
         Metar.showMetar(interaction);
         break;
