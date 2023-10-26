@@ -1,12 +1,26 @@
 require('dotenv').config();
 
-const { REST, Routes } = require('discord.js');
+const { REST, Routes, ApplicationCommandOptionType } = require('discord.js');
 
 const commands = [
   {
     name: 'cta',
     description:
       'Muestra una lista de los controladores de la división conectados a la red',
+  },
+  {
+    name: 'metar',
+    description: 'Obtiene la información METAR de una estación',
+    options: [
+      {
+        name: 'icao',
+        description: 'Código ICAO de la estación a consultar',
+        required: true,
+        min_length: 4,
+        max_length: 4,
+        type: ApplicationCommandOptionType.String,
+      },
+    ],
   },
 ];
 
