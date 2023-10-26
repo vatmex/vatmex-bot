@@ -93,7 +93,9 @@ app.use(Sentry.Handlers.errorHandler());
 
 // Entry Point for the Discord Bot
 bot.on('ready', () => {
-  console.log(`${new Date().toISOString()} - System: Vatmex Bot is online`);
+  console.log(
+    `${new Date().toISOString()} - SYSTEM: Discord Bot logged in succesfully`
+  );
 
   // Set up the controller check every 10 seconds
   setInterval(Controllers.checkControllers, 10000, bot);
@@ -102,5 +104,7 @@ bot.login(process.env.TOKEN);
 
 // Entry point for the express app;
 app.listen(8090, () => {
-  console.log('Bot listening on port 8090');
+  console.log(
+    `${new Date().toISOString()} - SYSTEM: Web server listening on port 8090`
+  );
 });
