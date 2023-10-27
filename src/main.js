@@ -16,6 +16,7 @@ const Controllers = require('./handlers/controllers');
 
 // Generate an instance of the Express app
 const app = express();
+app.disable('x-powered-by');
 
 // Init error monitoring with Sentry
 Sentry.init({
