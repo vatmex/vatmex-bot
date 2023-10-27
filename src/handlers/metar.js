@@ -52,6 +52,8 @@ const showMetar = async (interaction) => {
           `${new Date().toISOString()} - WARNING: METAR for ${icao.toUpperCase()} came out empty`
         );
         await interaction.reply('El METAR solicitado no fue encontrado');
+
+        return;
       }
 
       const metar = response.data.data[0];
@@ -65,6 +67,7 @@ const showMetar = async (interaction) => {
       let windField;
       let visibilityField = '';
       let cloudsField = '';
+      let baroField = 'No reportado';
       // Wind
       if (metar.wind || metar.wind > 5) {
         windField = `${metar.wind.degrees}° ${metar.wind.speed_kts}kts`;
@@ -90,17 +93,38 @@ const showMetar = async (interaction) => {
       // Clouds
       if (metar.clouds) {
         metar.clouds.forEach((layer) => {
-          cloudsField += `${
-            coverage[layer.code]
-          } a ${layer.base_feet_agl.toLocaleString('es-MX')} ft\n`;
-          readableMetar += `${
-            coverage[layer.code]
-          } a ${layer.base_feet_agl.toLocaleString('es-MX')} pies, `;
+          if (layer.code === 'CAVOK') {
+            cloudsField = layer.code;
+            readableMetar += 'cielo despejado, ';
+          } else if (layer.code === 'OVX') {
+            // Get the raw text from the metar
+            const n = metar.raw_text.indexOf('VV');
+            const verticalVisibilityFlightLevel = metar.raw_text.slice(
+              n + 2,
+              n + 5
+            );
+            const verticalVisibility = verticalVisibilityFlightLevel * 100;
+
+            cloudsField = `Visibilidad vertical ${verticalVisibility.toLocaleString(
+              'es-MX'
+            )} metros`;
+            readableMetar += `visibilidad vertical ${verticalVisibility} metros`;
+          } else {
+            cloudsField += `${
+              coverage[layer.code]
+            } a ${layer.base_feet_agl.toLocaleString('es-MX')} ft\n`;
+            readableMetar += `${
+              coverage[layer.code]
+            } a ${layer.base_feet_agl.toLocaleString('es-MX')} pies, `;
+          }
         });
       }
       readableMetar += `temperatura ${metar.temperature.celsius} grados, `;
       readableMetar += `punto de rocío ${metar.dewpoint.celsius} grados, `;
-      readableMetar += `QNH ${metar.barometer.hg}.`;
+      if (metar.barometer) {
+        readableMetar += `QNH ${metar.barometer.hg}.`;
+        baroField = `${metar.barometer.hg} inHg`;
+      }
 
       // Build the Embed
       const metarEmbed = new EmbedBuilder()
@@ -156,7 +180,7 @@ const showMetar = async (interaction) => {
           },
           {
             name: 'QNH',
-            value: `${metar.barometer.hg} inHg`,
+            value: baroField,
             inline: true,
           },
           {
