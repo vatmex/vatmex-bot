@@ -64,7 +64,7 @@ const showMetar = async (interaction) => {
       let cloudsField = '';
       // Wind
       if (metar.wind || metar.wind > 5) {
-        windField = `${metar.wind.degrees}\° ${metar.wind.speed_kts}kts`;
+        windField = `${metar.wind.degrees}° ${metar.wind.speed_kts}kts`;
         readableMetar += `viento ${metar.wind.degrees} grados ${metar.wind.speed_kts} nudos, `;
       } else {
         windField = 'Viento calma';
