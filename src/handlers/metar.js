@@ -3,6 +3,7 @@ require('dotenv').config();
 // Import dependencies
 const { EmbedBuilder } = require('discord.js');
 const axios = require('axios');
+const moment = require('moment');
 
 const conditions = {
   BR: 'neblina',
@@ -40,7 +41,7 @@ const showMetar = async (interaction) => {
   const request = {
     method: 'get',
     url: `https://api.checkwx.com/metar/${icao.toUpperCase()}/decoded`,
-    headers: { 'X-API-Key': '6b3983bd27f541d2a1e83b62b6' },
+    headers: { 'X-API-Key': process.env.CHECKWX_API_KEY },
   };
 
   axios(request)
@@ -58,7 +59,9 @@ const showMetar = async (interaction) => {
 
       /// Build the readable string and individual properties.
       // Station and time
-      let readableMetar = `${metar.station.name} reportado a las ${metar.observed}, `;
+      let readableMetar = `${metar.station.name} reportado a las ${moment(
+        metar.observed
+      ).format('HHmm')}UTC, `;
       let windField;
       let visibilityField = '';
       let cloudsField = '';
@@ -87,12 +90,12 @@ const showMetar = async (interaction) => {
       // Clouds
       if (metar.clouds) {
         metar.clouds.forEach((layer) => {
-          cloudsField += `${coverage[layer.code]} a ${
-            layer.base_feet_agl
-          } ft\n`;
-          readableMetar += `${coverage[layer.code]} a ${
-            layer.base_feet_agl
-          } pies, `;
+          cloudsField += `${
+            coverage[layer.code]
+          } a ${layer.base_feet_agl.toLocaleString('es-MX')} ft\n`;
+          readableMetar += `${
+            coverage[layer.code]
+          } a ${layer.base_feet_agl.toLocaleString('es-MX')} pies, `;
         });
       }
       readableMetar += `temperatura ${metar.temperature.celsius} grados, `;
@@ -114,7 +117,7 @@ const showMetar = async (interaction) => {
         .addFields(
           {
             name: 'Tiempo del Reporte',
-            value: metar.observed,
+            value: `${moment(metar.observed).format('HH:mm:00')}UTC`,
             inline: true,
           },
           {
@@ -158,13 +161,13 @@ const showMetar = async (interaction) => {
           },
           {
             name: 'Elevación',
-            value: 'Some value here',
+            value: `${metar.elevation.feet} ft`,
             inline: true,
           }
         )
         .setTimestamp()
         .setFooter({
-          text: `${metar.elevation.feet} ft`,
+          text: 'Información de METARs por CheckWX',
         });
 
       interaction.reply({ embeds: [metarEmbed] });
