@@ -108,7 +108,7 @@ const showMetar = async (interaction) => {
             cloudsField = `Visibilidad vertical ${verticalVisibility.toLocaleString(
               'es-MX'
             )} metros`;
-            readableMetar += `visibilidad vertical ${verticalVisibility} metros`;
+            readableMetar += `visibilidad vertical ${verticalVisibility} metros, `;
           } else {
             cloudsField += `${
               coverage[layer.code]
