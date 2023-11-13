@@ -11,6 +11,8 @@ const API = require('./middleware/api');
 const notificationController = require('./controllers/notificationController');
 
 // Import Handlers
+const eventHandler = require('./handlers/eventHandler');
+
 const Metar = require('./handlers/metar');
 const Controllers = require('./handlers/controllers');
 
@@ -50,41 +52,6 @@ const bot = new Client({
   ],
 });
 
-// Set up the bot command handlers
-bot.on('interactionCreate', (interaction) => {
-  if (interaction.isChatInputCommand()) {
-    let interactionUsername = '';
-
-    if (interaction.member.nickname) {
-      interactionUsername = interaction.member.nickname;
-    } else {
-      interactionUsername = interaction.user.username;
-    }
-
-    switch (interaction.commandName) {
-      case 'cta':
-        console.log(
-          `${new Date().toISOString()} - Commands: ${interactionUsername} solicito el comando /cta`
-        );
-        Controllers.listControllers(interaction);
-        break;
-
-      case 'metar':
-        console.log(
-          `${new Date().toISOString()} - COMMAND: ${interactionUsername} request command /metar for airport ${interaction.options
-            .get('icao')
-            .value.toUpperCase()}`
-        );
-        Metar.showMetar(interaction);
-        break;
-
-      default:
-        interaction.reply('Comando no implementado. Es culpa de Enrique!');
-        break;
-    }
-  }
-});
-
 app.post('/application', API.authenticateKey, (req, res) => {
   notificationController.application(req, res, bot);
 });
@@ -92,15 +59,8 @@ app.post('/application', API.authenticateKey, (req, res) => {
 // Add the sentry error handler after all the controllers for ExpressJS
 app.use(Sentry.Handlers.errorHandler());
 
-// Entry Point for the Discord Bot
-bot.on('ready', () => {
-  console.log(
-    `${new Date().toISOString()} - SYSTEM: Discord Bot logged in succesfully`
-  );
+eventHandler(bot);
 
-  // Set up the controller check every 10 seconds
-  setInterval(Controllers.checkControllers, 10000, bot);
-});
 bot.login(process.env.TOKEN);
 
 // Entry point for the express app;

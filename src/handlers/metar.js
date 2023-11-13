@@ -57,7 +57,6 @@ const showMetar = async (interaction) => {
       }
 
       const metar = response.data.data[0];
-      console.log(metar);
 
       /// Build the readable string and individual properties.
       // Station and time
