@@ -42,6 +42,8 @@ module.exports = async (bot, interaction) => {
 
     await commandObject.callback(bot, interaction);
   } catch (error) {
-    console.log(`ERROR: Could not run command: ${error}`);
+    console.log(
+      `${new Date().toISOString()} - ERROR: Could not run command: ${error}.`
+    );
   }
 };

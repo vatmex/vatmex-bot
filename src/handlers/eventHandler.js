@@ -11,7 +11,6 @@ module.exports = (bot) => {
     const eventName = eventFolder.replace(/\\/g, '/').split('/').pop();
 
     bot.on(eventName, async (arg) => {
-      console.log(eventName + arg);
       for (const eventFile of eventFiles) {
         // eslint-disable-next-line import/no-dynamic-require, global-require
         const eventFunction = require(eventFile);

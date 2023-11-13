@@ -13,9 +13,6 @@ const notificationController = require('./controllers/notificationController');
 // Import Handlers
 const eventHandler = require('./handlers/eventHandler');
 
-const Metar = require('./handlers/metar');
-const Controllers = require('./handlers/controllers');
-
 // Generate an instance of the Express app
 const app = express();
 app.disable('x-powered-by');
@@ -66,6 +63,6 @@ bot.login(process.env.TOKEN);
 // Entry point for the express app;
 app.listen(8090, () => {
   console.log(
-    `${new Date().toISOString()} - SYSTEM: Web server listening on port 8090`
+    `${new Date().toISOString()} - SYSTEM: Web server listening on port 8090.`
   );
 });

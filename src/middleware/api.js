@@ -5,7 +5,7 @@ const authenticateKey = (req, res, next) => {
     next();
   } else {
     // Reject request if API key doesn't match
-    console.log('Request not authorized');
+    console.log(`${new Date().toISOString()} - API: Request not authorized.`);
     res.status(403).send({ error: { code: 403, message: 'Unauthorized.' } });
   }
 };

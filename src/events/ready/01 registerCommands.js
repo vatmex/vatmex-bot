@@ -27,7 +27,9 @@ module.exports = async (bot) => {
         // If so, proceeed to delete and exit the loop for this command.
         if (localCommand.deleted) {
           await applicationCommands.delete(existingCommand.id);
-          console.log(`COMMANDS: Deleted command /${name}`);
+          console.log(
+            `${new Date().toISOString()} - COMMANDS: Deleted command /${name}.`
+          );
           // eslint-disable-next-line no-continue
           continue;
         }
@@ -39,14 +41,16 @@ module.exports = async (bot) => {
             options,
           });
 
-          console.log(`COMMANDS: Updated command /${name}`);
+          console.log(
+            `${new Date().toISOString()} - COMMANDS: Updated command /${name}.`
+          );
         }
         // If not, we will register the command to the application.
       } else {
         // If the command is flagged to be deleted. Skip and log.
         if (localCommand.deleted) {
           console.log(
-            `COMMANDS: Skipping registering command /${name} as it's flagged for deletion`
+            `${new Date().toISOString()} - COMMANDS: Skipping registering command /${name} as it's flagged for deletion.`
           );
           // eslint-disable-next-line no-continue
           continue;
@@ -59,12 +63,12 @@ module.exports = async (bot) => {
           options,
         });
 
-        console.log(`COMMANDS: Registered new command /${name}`);
+        console.log(
+          `${new Date().toISOString()} - COMMANDS: Registered new command /${name}.`
+        );
       }
     }
   } catch (error) {
-    console.log(`ERROR: ${error}`);
+    console.log(`${new Date().toISOString()} - ERROR: ${error}.`);
   }
-
-  console.log(localCommands);
 };

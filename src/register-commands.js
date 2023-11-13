@@ -36,6 +36,6 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
       { body: commands }
     );
   } catch (error) {
-    console.log(`${new Date().toISOString()} - Error: ${error}`);
+    console.log(`${new Date().toISOString()} - Error: ${error}.`);
   }
 })();
