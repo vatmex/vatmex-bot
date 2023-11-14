@@ -1,8 +1,19 @@
+const axios = require('axios');
+
 let controllersOnline = {};
 
 const updateControllers = async (bot, callback) => {
   const response = await fetch(process.env.VATSIM_DATA_URL);
   const data = await response.json();
+
+  const request = {
+    method: 'get',
+    url: process.env.VATSIM_DATA_URL,
+  };
+
+  axios(request).then(async (axiosresponse) => {
+    console.log(axiosresponse.data);
+  });
 
   const newControllersOnline = {};
 

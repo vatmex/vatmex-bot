@@ -16,8 +16,6 @@ module.exports = async (bot) => {
     for (const localCommand of localCommands) {
       const { name, description, options } = localCommand;
 
-      console.log(localCommand.name);
-
       // Check if the local command is already register in the application.
       // If it is, we will proceed to check for deletions, compare, and update.
       const existingCommand = await applicationCommands.cache.find(
