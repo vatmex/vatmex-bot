@@ -210,7 +210,6 @@ module.exports = {
         console.log(
           `${new Date().toISOString()} - ERROR: Failed to fetch data from CheckWX API`
         );
-        console.log(error);
         interaction.reply(
           'Ocurrió un error al comunicarnos con el servicio de Metar. ¡Intenta mas tarde!'
         );
