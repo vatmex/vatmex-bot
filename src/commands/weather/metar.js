@@ -103,8 +103,8 @@ module.exports = {
         // Clouds
         if (metar.clouds) {
           metar.clouds.forEach((layer) => {
-            if (layer.code === 'CAVOK') {
-              cloudsField = layer.code;
+            if (layer.code === 'CAVOK' || layer.code === 'SKC') {
+              cloudsField = 'Despejado';
               readableMetar += 'cielo despejado, ';
             } else if (layer.code === 'OVX') {
               // Get the raw text from the metar
@@ -208,7 +208,7 @@ module.exports = {
       })
       .catch((error) => {
         console.log(
-          `${new Date().toISOString()} - ERROR: Failed to fetch data from CheckWX API`
+          `${new Date().toISOString()} - ERROR: Failed to fetch data from CheckWX API. ${error}`
         );
         interaction.reply(
           'Ocurrió un error al comunicarnos con el servicio de Metar. ¡Intenta mas tarde!'
