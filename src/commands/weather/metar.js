@@ -1,5 +1,12 @@
 // Import dependencies
-const { EmbedBuilder, ApplicationCommandOptionType } = require('discord.js');
+const {
+  // eslint-disable-next-line no-unused-vars
+  Client,
+  // eslint-disable-next-line no-unused-vars
+  InteractionResponse,
+  EmbedBuilder,
+  ApplicationCommandOptionType,
+} = require('discord.js');
 const axios = require('axios');
 const moment = require('moment');
 
@@ -46,6 +53,12 @@ module.exports = {
       type: ApplicationCommandOptionType.String,
     },
   ],
+  /**
+   * Reponds to the /metar command with decoded weather information from CheckWX.
+   *
+   * @param {Client} bot
+   * @param {InteractionResponse} interaction
+   */
   callback: async (bot, interaction) => {
     const icao = interaction.options.get('icao').value;
 
