@@ -3,7 +3,7 @@ const {
   // eslint-disable-next-line no-unused-vars
   Client,
   // eslint-disable-next-line no-unused-vars
-  InteractionResponse,
+  Interaction,
   EmbedBuilder,
   ApplicationCommandOptionType,
 } = require('discord.js');
@@ -57,7 +57,7 @@ module.exports = {
    * Reponds to the /metar command with decoded weather information from CheckWX.
    *
    * @param {Client} bot
-   * @param {InteractionResponse} interaction
+   * @param {Interaction} interaction
    */
   callback: async (bot, interaction) => {
     const icao = interaction.options.get('icao').value;

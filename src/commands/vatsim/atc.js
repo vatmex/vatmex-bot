@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-const { Client, InteractionResponse, EmbedBuilder } = require('discord.js');
+const { Client, Interaction, EmbedBuilder } = require('discord.js');
 
 const { getOnlineControllers } = require('../../models/controllers');
 const Positions = require('../../utils/positions');
@@ -12,7 +12,7 @@ module.exports = {
   /**
    * Responds the /cta command with a list of the online controllers sorted by FIR.
    * @param {Client} bot
-   * @param {InteractionResponse} interaction
+   * @param {Interaction} interaction
    */
   callback: (bot, interaction) => {
     const controllersOnline = getOnlineControllers();
