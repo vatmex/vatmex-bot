@@ -21,7 +21,7 @@
     "@sentry/profiling-node": "^1.2.1",
     "@typescript-eslint/eslint-plugin": "^5.47.0",
     "@typescript-eslint/parser": "^5.47.0",
-    "axios": "^1.6.0",
+    "axios": "^1.6.4",
     "discord.js": "^14.11.0",
     "dotenv": "^16.3.1",
     "eslint": "^8.44.0",
