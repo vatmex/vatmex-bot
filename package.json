@@ -1,0 +1,41 @@
+{
+  "name": "vatmex-bot",
+  "version": "0.1.0",
+  "description": "A Discord bot for Vatsim Mexico division (Vatmex)",
+  "main": "src/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/main.js",
+    "register-commands": "node src/register-commands.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "author": "Gustavo Valdez",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/core": "^7.22.6",
+    "@babel/eslint-parser": "^7.22.6",
+    "@babel/preset-react": "^7.18.6",
+    "@rushstack/eslint-patch": "^1.2.0",
+    "@sentry/node": "^7.74.1",
+    "@sentry/profiling-node": "^1.2.1",
+    "@typescript-eslint/eslint-plugin": "^5.47.0",
+    "@typescript-eslint/parser": "^5.47.0",
+    "axios": "^1.6.0",
+    "discord.js": "^14.11.0",
+    "dotenv": "^16.3.1",
+    "eslint": "^8.44.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-html": "^7.1.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jsx-a11y": "^6.6.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.31.11",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "express": "^4.18.2",
+    "moment": "^2.29.4",
+    "prettier": "^2.8.8"
+  }
+}
